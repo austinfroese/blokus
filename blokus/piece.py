@@ -3,7 +3,7 @@ import pygame
 
 # Shape Matrices
 
-i1 = [0,0]
+i1 = [[0,0]]
 
 i2 = [[0,0], [1,0]]
 
@@ -63,9 +63,10 @@ class Piece:
         if len(self.shape) == 1:
             pygame.draw.rect(surface, self.color, pygame.Rect(self.x, self.y, self.block, self.block))
             pygame.draw.rect(surface, (255,255,255), pygame.Rect(self.x, self.y, self.block, self.block),1) 
-        for i in range(len(self.shape)):
-            pygame.draw.rect(surface, self.color, pygame.Rect(self.x + self.shape[i][0] * self.block, self.y + self.shape[i][1] * self.block, self.block, self.block))
-            pygame.draw.rect(surface, (255,255,255), pygame.Rect(self.x + self.shape[i][0] * self.block, self.y + self.shape[i][1] * self.block, self.block, self.block),1)
+        else:
+            for i in range(len(self.shape)):
+                pygame.draw.rect(surface, self.color, pygame.Rect(self.x + self.shape[i][0] * self.block, self.y + self.shape[i][1] * self.block, self.block, self.block))
+                pygame.draw.rect(surface, (255,255,255), pygame.Rect(self.x + self.shape[i][0] * self.block, self.y + self.shape[i][1] * self.block, self.block, self.block),1)
 
 
     def rot_shape(self, direction):

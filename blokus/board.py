@@ -1,14 +1,19 @@
 import pygame
 from .constants import BLACK
 from .piece import *
-from blokus import screen, player1_x, player2_x, player_y, top_left_x, top_left_y
+
+top_left_x = (SCREEN_WIDTH - BOARD_WIDTH) / 2
+top_left_y = (SCREEN_HEIGHT - BOARD_HEIGHT) / 2
+player1_x = (top_left_x - 360) / 2
+player_y = 60
+player2_x = top_left_x + BOARD_WIDTH + player1_x
 
 class Board:
     def __init__(self):
         self.board = []
         self.selected_piece = None
         self.player1 = self.player2 = 0
-        self.create_board()
+        #self.create_board()
 
     def draw_board(self, win):
         win.fill(BLACK)
@@ -16,8 +21,8 @@ class Board:
     def winner(self):       
         return None 
 
-    def player_grid(self, player1, player2):
-        player_grid = [[[] for x in range(18)] for x in range(42)]
+    def player_grid(self, screen, player1, player2):
+        player_grid = [[[] for x in range(42)] for x in range(18)]
         k = 0
 
         for i in range(len(player_grid)):
@@ -54,7 +59,7 @@ class Board:
                 pygame.draw.line(surface, (128,128,128), (sx + j * BLOCK_SIZE, sy), (sx + j * BLOCK_SIZE, sy + BOARD_HEIGHT))  # vertical lines
 
 
-    def draw_window(self, surface, grid):
+    def draw_window(self, surface):
         surface.fill((0, 0, 0))
 
         pygame.font.init()
@@ -65,10 +70,13 @@ class Board:
         surface.blit(label1, (150, 30))
         surface.blit(label2, (SCREEN_WIDTH - top_left_x / 2, 30))
 
+        board = Board()
+        board.player_grid(surface, player_list, player_list)
+
         #for i in range(len(grid)):
         #    for j in range(len(grid[i])):
         #        pygame.draw.rect(surface, grid[i][j], (top_left_x + j*BLOCK_SIZE, top_left_y + i*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE), 0)
 
-        pygame.draw.rect(surface, (255, 0, 0), (top_left_x, top_left_y, BOARD_WIDTH, BOARD_HEIGHT), 3)
+        #pygame.draw.rect(surface, (255, 0, 0), (top_left_x, top_left_y, BOARD_WIDTH, BOARD_HEIGHT), 3)
 
-        draw_grid(surface, 14, 14)
+        #draw_grid(surface, 14, 14)

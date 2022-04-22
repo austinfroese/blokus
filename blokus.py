@@ -4,6 +4,7 @@ import math
 from blokus.constants import *
 from blokus.piece import *
 from blokus.game import *
+from blokus.board import *
 
 FPS = 60
 
@@ -75,11 +76,11 @@ def drag_drop(surface, grid, shape, offset_x, offset_y, dragging):
             if dragging == True:
                 Board.draw_window(surface, grid)
 
-            draw_shape(screen, origin_x, origin_y, shape, (255,0,0), BLOCK_SIZE)
+            #draw_shape(screen, origin_x, origin_y, shape, (255,0,0), BLOCK_SIZE)
 
             pygame.display.flip()
 
-            clock.tick()
+         #   clock.tick()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -107,7 +108,7 @@ def drag_drop(surface, grid, shape, offset_x, offset_y, dragging):
             Board.draw_window(surface, grid)
 
         # surface, origin_x, origin_y, shape_matrix, color, block_size
-        draw_shape(screen, origin_x, origin_y, shape, (255,0,0), BLOCK_SIZE)
+        #draw_shape(screen, origin_x, origin_y, shape, (255,0,0), BLOCK_SIZE)
 
         pygame.display.update()
 
@@ -120,14 +121,15 @@ def main():
     run = True
     clock = pygame.time.Clock()
     game = Game(screen)
+    board = Board()
 
     while run:
         clock.tick(FPS)
-        grid = Board.game_grid(board_positions)
+        #grid = Board.game_grid(board_positions)
         
-        if game.winnner() != None:
-            print(game.winner())
-            run = False
+        #if game.winnner() != None:
+        #    print(game.winner())
+        #    run = False
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -148,7 +150,8 @@ def main():
                     shape = Piece.flip_shape(shape)
                 if event.key == pygame.K_RETURN:
                     pass
-
+        
+        board.player_grid(screen, player_list, player_list)
         game.update()
     
     pygame.quit()

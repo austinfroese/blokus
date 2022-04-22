@@ -9,7 +9,7 @@ class Game:
         self.win = win
     
     def update(self):
-        self.board.draw(self.win)
+        self.board.draw_window(self.win)
         pygame.display.update()
 
     def _init(self):
