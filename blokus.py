@@ -127,9 +127,9 @@ def main():
         clock.tick(FPS)
         #grid = Board.game_grid(board_positions)
         
-        #if game.winnner() != None:
-        #    print(game.winner())
-        #    run = False
+        if game.winner() != None:
+            print(game.winner())
+            run = False
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -151,7 +151,7 @@ def main():
                 if event.key == pygame.K_RETURN:
                     pass
         
-        board.player_grid(screen, player_list, player_list)
+        board.player_grid(screen, player_list)
         game.update()
     
     pygame.quit()
