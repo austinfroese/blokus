@@ -1,6 +1,7 @@
 from genericpath import exists
 import pygame
 import math
+import random
 from blokus.constants import *
 from blokus.piece import *
 from blokus.game import *
@@ -14,28 +15,31 @@ pygame.font.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("BLOKUS DUO")
 
-top_left_x = (SCREEN_WIDTH - BOARD_WIDTH) / 2
-top_left_y = (SCREEN_HEIGHT - BOARD_HEIGHT) / 2
-player1_x = (top_left_x - BOARD_WIDTH) / 2
-player_y = 60
-player2_x = SCREEN_WIDTH + player1_x
-
 # functions
-def get_row_col_from_mouse(pos):
-    x, y = pos
-    # Determine which board the mouse is in
-    # Player 1's board
-    if x >= 0 and x < top_left_x:
-        row = y // RESERVE_SIZE
-        col = x // RESERVE_SIZE
-    # Main Board
-    elif x >= top_left_x and x < top_left_x + SCREEN_WIDTH:
-        row = y // BLOCK_SIZE
-    # Player 2's Board
-    else:
-        row = y // RESERVE_SIZE
-
-    return row, col
+def player_board_click(pos, player):
+    player_click_grid = [[[] for x in range(7)] for x in range(3)]
+    # counter for figuring out which shape is clicked
+    n = 0
+    
+    if player == 1:
+        for i in range(len(player_click_grid)):
+            for j in range(len(player_click_grid[i])):
+                temp_rect = pygame.Rect(i * (RESERVE_SIZE * 6), player_y + j * (RESERVE_SIZE * 6), RESERVE_SIZE * 6, RESERVE_SIZE * 6)
+                if temp_rect.collidepoint(pos):
+                    shape_clicked = player_str[n]
+                    return shape_clicked
+                else:
+                    n += 1
+                
+    if player == 2:
+        for i in range(len(player_click_grid)):
+            for j in range(len(player_click_grid[i])):
+                temp_rect = pygame.Rect(player2_x + i * (RESERVE_SIZE * 6), player_y + j * (RESERVE_SIZE * 6), RESERVE_SIZE * 6, RESERVE_SIZE * 6)
+                if temp_rect.collidepoint(pos):
+                    shape_clicked = player_str[n]
+                    return shape_clicked
+                else:
+                    n += 1
 
 def is_valid():
     pass
@@ -119,13 +123,14 @@ def main():
     grid = Board.game_grid(board_positions)
 
     run = True
+    dragging = False
     clock = pygame.time.Clock()
     game = Game(screen)
     board = Board()
 
     while run:
         clock.tick(FPS)
-        #grid = Board.game_grid(board_positions)
+        grid = Board.game_grid(board_positions)
         
         if game.winner() != None:
             print(game.winner())
@@ -136,22 +141,25 @@ def main():
                 run = False
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                pos = pygame.mouse.get_pos()
-                row, col = get_row_col_from_mouse(pos)
-                game.select(row, col)
+                mouse_pos = pygame.mouse.get_pos()
+                if dragging == False:
+                    if mouse_pos[0] >= 0 and mouse_pos[0] < top_left_x:
+                        player_board_click(mouse_pos, 1)
+                    if mouse_pos[0] >= (player2_x):
+                        player_board_click(mouse_pos, 2)
             
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP or pygame.K_DOWN:
-                    if event.key == pygame.K_UP:
-                        shape = Piece.rot_shape(shape, "cw")
-                    elif event.key == pygame.K_DOWN:
-                        shape = Piece.rot_shape(shape, "ccw")
-                if event.key == pygame.K_f:
-                    shape = Piece.flip_shape(shape)
-                if event.key == pygame.K_RETURN:
-                    pass
+            if dragging:
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_UP or pygame.K_DOWN:
+                        if event.key == pygame.K_UP:
+                            shape = Piece.rot_shape(shape, "cw")
+                        elif event.key == pygame.K_DOWN:
+                            shape = Piece.rot_shape(shape, "ccw")
+                    if event.key == pygame.K_f:
+                        shape = Piece.flip_shape(shape)
+                    if event.key == pygame.K_RETURN:
+                        dragging = False
         
-        board.player_grid(screen, player_list)
         game.update()
     
     pygame.quit()
