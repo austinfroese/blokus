@@ -9,6 +9,9 @@ from blokus.board import *
 
 FPS = 60
 
+# Pick Starting player randomly
+starting_player = random.choice([1, 2])
+
 pygame.init()
 pygame.font.init()
 
@@ -26,8 +29,7 @@ def player_board_click(pos, player):
             for j in range(len(player_click_grid[i])):
                 temp_rect = pygame.Rect(i * (RESERVE_SIZE * 6), player_y + j * (RESERVE_SIZE * 6), RESERVE_SIZE * 6, RESERVE_SIZE * 6)
                 if temp_rect.collidepoint(pos):
-                    shape_clicked = player_str[n]
-                    return shape_clicked
+                    return (player_str[n], 1) # Returns piece name and player 1
                 else:
                     n += 1
                 
@@ -36,8 +38,7 @@ def player_board_click(pos, player):
             for j in range(len(player_click_grid[i])):
                 temp_rect = pygame.Rect(player2_x + i * (RESERVE_SIZE * 6), player_y + j * (RESERVE_SIZE * 6), RESERVE_SIZE * 6, RESERVE_SIZE * 6)
                 if temp_rect.collidepoint(pos):
-                    shape_clicked = player_str[n]
-                    return shape_clicked
+                    return (player_str[n], 2) # Returns piece name and player 2
                 else:
                     n += 1
 
@@ -125,7 +126,7 @@ def main():
     run = True
     dragging = False
     clock = pygame.time.Clock()
-    game = Game(screen)
+    game = Game(screen, starting_player)
     board = Board()
 
     while run:
@@ -144,9 +145,9 @@ def main():
                 mouse_pos = pygame.mouse.get_pos()
                 if dragging == False:
                     if mouse_pos[0] >= 0 and mouse_pos[0] < top_left_x:
-                        player_board_click(mouse_pos, 1)
+                        selected_piece = player_board_click(mouse_pos, 1)
                     if mouse_pos[0] >= (player2_x):
-                        player_board_click(mouse_pos, 2)
+                        selected_piece = player_board_click(mouse_pos, 2)
             
             if dragging:
                 if event.type == pygame.KEYDOWN:
@@ -164,4 +165,5 @@ def main():
     
     pygame.quit()
 
-main()
+if __name__ == "__main__":
+    main()

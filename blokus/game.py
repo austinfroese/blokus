@@ -4,12 +4,13 @@ from .constants import *
 from .board import Board
 
 class Game:
-    def __init__(self, win):
+    def __init__(self, win, player_turn):
         self._init()
         self.win = win
+        self.player_turn = player_turn
     
     def update(self):
-        self.board.draw_window(self.win)
+        self.board.draw_window(self.win, self.player_turn)
         pygame.display.update()
 
     def _init(self):

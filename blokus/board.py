@@ -1,5 +1,6 @@
 import pygame
 import random
+import os
 from .constants import BLACK
 from .piece import *
 
@@ -8,9 +9,6 @@ top_left_y = (SCREEN_HEIGHT - BOARD_HEIGHT) / 2
 player1_x = (top_left_x - 360) / 2
 player_y = 60
 player2_x = top_left_x + BOARD_WIDTH + player1_x
-
-# Pick Starting player randomly
-starting_player = random.choice([1, 2])
 
 class Board:
     def __init__(self):
@@ -53,20 +51,26 @@ class Board:
     # This function draws the grey grid lines
         sx = top_left_x
         sy = top_left_y
+        
+        x_pic_image = pygame.image.load(os.path.join('assets', 'x_pic.png'))
+        x_pic = pygame.transform.scale(x_pic_image, (BLOCK_SIZE - 6, BLOCK_SIZE - 6))
 
         for i in range(row):
             pygame.draw.line(surface, (128,128,128), (sx, sy+ i * BLOCK_SIZE), (sx + BOARD_WIDTH, sy + i * BLOCK_SIZE))  # horizontal lines
             for j in range(col):
                 pygame.draw.line(surface, (128,128,128), (sx + j * BLOCK_SIZE, sy), (sx + j * BLOCK_SIZE, sy + BOARD_HEIGHT))  # vertical lines
+                # Draws x on starting pos
+                if (i == 4 and j == 4) or (i == 9 and j == 9):
+                    surface.blit(x_pic, (sx + j * BLOCK_SIZE + 3, sy + i * BLOCK_SIZE + 3))
 
 
-    def draw_window(self, surface):
+    def draw_window(self, surface, turn):
         surface.fill((0, 0, 0))
 
         font = pygame.font.SysFont('comicsans', 30)
         label1 = font.render('Player 1', 1, WHITE)
         label2 = font.render('Player 2', 1, WHITE)
-        label3 = font.render('Player ' + str(starting_player) + "'s turn", 1, WHITE)
+        label3 = font.render('Player ' + str(turn) + "'s turn", 1, WHITE)
 
         surface.blit(label1, (150, 30))
         surface.blit(label2, (player2_x + 130, 30))
