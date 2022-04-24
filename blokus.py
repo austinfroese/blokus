@@ -28,7 +28,7 @@ def player_board_click(pos, player):
         for i in range(len(player_click_grid)):
             for j in range(len(player_click_grid[i])):
                 temp_rect = pygame.Rect(i * (RESERVE_SIZE * 6), player_y + j * (RESERVE_SIZE * 6), RESERVE_SIZE * 6, RESERVE_SIZE * 6)
-                if temp_rect.collidepoint(pos):
+                if temp_rect.collidepoint(pos) and (player_str[n] in player1_reserves):
                     return (player_str[n], 1) # Returns piece name and player 1
                 else:
                     n += 1
@@ -37,7 +37,7 @@ def player_board_click(pos, player):
         for i in range(len(player_click_grid)):
             for j in range(len(player_click_grid[i])):
                 temp_rect = pygame.Rect(player2_x + i * (RESERVE_SIZE * 6), player_y + j * (RESERVE_SIZE * 6), RESERVE_SIZE * 6, RESERVE_SIZE * 6)
-                if temp_rect.collidepoint(pos):
+                if temp_rect.collidepoint(pos) and (player_str[n] in player2_reserves):
                     return (player_str[n], 2) # Returns piece name and player 2
                 else:
                     n += 1
@@ -146,13 +146,16 @@ def main():
                 if dragging == False:
                     if mouse_pos[0] >= 0 and mouse_pos[0] < top_left_x:
                         selected_piece = player_board_click(mouse_pos, 1)
+                        #dragging = True
                     if mouse_pos[0] >= (player2_x):
                         selected_piece = player_board_click(mouse_pos, 2)
+                        #dragging = True
             
             if dragging:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_UP or pygame.K_DOWN:
                         if event.key == pygame.K_UP:
+
                             shape = Piece.rot_shape(shape, "cw")
                         elif event.key == pygame.K_DOWN:
                             shape = Piece.rot_shape(shape, "ccw")
