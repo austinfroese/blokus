@@ -11,16 +11,16 @@ player_y = 60
 player2_x = top_left_x + BOARD_WIDTH + player1_x
 
 class Board:
-    def __init__(self):
-        self.selected_piece = None
-
-    def draw_board(self, win):
-        win.fill(BLACK)
+    def __init__(self, surface, turn, selected_piece):
+        self.surface = surface
+        self.turn = turn
+        self.selected_piece = selected_piece      
     
-    def winner(self):       
-        return None 
+    def update(self):
+        self.draw_window(self.surface)
+        pygame.display.update()
 
-    def player_grid(self, screen, piece_list):
+    def player_reserves(self, screen, piece_list):
         player_grid = [[[] for x in range(42)] for x in range(18)]
         k = 0
 
@@ -28,10 +28,10 @@ class Board:
             for j in range(len(player_grid[i])):
                 if i % 6 == 2 and j % 6 == 2:
                     if player_str[k] in player1_reserves:
-                        p1_piece_name = Piece(player1_x + i*RESERVE_SIZE, player_y + j*RESERVE_SIZE, piece_list[k], COLOR1, RESERVE_SIZE)
+                        p1_piece_name = Piece(player1_x + i*RESERVE_SIZE, player_y + j*RESERVE_SIZE, piece_list[k], piece_corners_list[k], COLOR1, RESERVE_SIZE)
                         p1_piece_name.draw_shape(screen)
                     if player_str[k] in player2_reserves:
-                        p2_piece_name = Piece(player2_x + i*RESERVE_SIZE, player_y + j*RESERVE_SIZE, piece_list[k], COLOR2, RESERVE_SIZE)
+                        p2_piece_name = Piece(player2_x + i*RESERVE_SIZE, player_y + j*RESERVE_SIZE, piece_list[k], piece_corners_list[k], COLOR2, RESERVE_SIZE)
                         p2_piece_name.draw_shape(screen)
                     k += 1
 
@@ -62,24 +62,37 @@ class Board:
                 # Draws x on starting pos
                 if (i == 4 and j == 4) or (i == 9 and j == 9):
                     surface.blit(x_pic, (sx + j * BLOCK_SIZE + 3, sy + i * BLOCK_SIZE + 3))
+    
+    def draw_dragged_piece(self, surface):
+        if self.turn == 1:
+            color = COLOR1
+        elif self.turn == 2:
+            color = COLOR2
+        
+        origin_x, origin_y = pygame.mouse.get_pos()
+        origin_x -= BLOCK_SIZE // 2
+        origin_y -= BLOCK_SIZE // 2
+        pygame.draw.rect(surface, color, self.selected_piece.x)
+        pygame.draw.rect(surface, WHITE, self.selected_piece.y, 1)
 
 
-    def draw_window(self, surface, turn):
+    def draw_window(self, surface):
         surface.fill((0, 0, 0))
 
         font = pygame.font.SysFont('comicsans', 30)
         label1 = font.render('Player 1', 1, WHITE)
         label2 = font.render('Player 2', 1, WHITE)
-        label3 = font.render('Player ' + str(turn) + "'s turn", 1, WHITE)
+        label3 = font.render('Player ' + str(self.turn) + "'s turn", 1, WHITE)
 
         surface.blit(label1, (150, 30))
         surface.blit(label2, (player2_x + 130, 30))
         surface.blit(label3, (top_left_x + (BOARD_WIDTH / 2) - (label3.get_width() / 2), 30))
 
-        board = Board()
-        board.player_grid(surface, player_list)
-        board.draw_grid(surface, 14, 14)
+        self.player_reserves(surface, player_list)
+        self.draw_grid(surface, 14, 14)
         pygame.draw.rect(surface, (255, 0, 0), (top_left_x, top_left_y, BOARD_WIDTH, BOARD_HEIGHT), 3)
+
+        #self.draw_dragged_piece(surface)
 
         #for i in range(len(grid)):
         #    for j in range(len(grid[i])):

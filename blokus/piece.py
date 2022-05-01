@@ -76,10 +76,11 @@ player1_reserves = dict(zip(player_str, player_list))
 player2_reserves = player1_reserves
 
 class Piece:
-    def __init__(self, x, y, shape, color, block):
+    def __init__(self, x, y, shape, corners, color, block):
             self.x = x
             self.y = y
             self.shape = shape
+            self.corners = corners
             self.color = color
             self.block = block
     
@@ -99,6 +100,8 @@ class Piece:
 
                 # Rotated CW shape matrix
                 rot_shape = [[sum(a*b for a,b in zip(X_row,Y_col)) for Y_col in zip(*rot_cw)] for X_row in self.shape]
+                # Rotated CW shape matrix for corners
+                rot_shape_corners = [[sum(a*b for a,b in zip(X_row,Y_col)) for Y_col in zip(*rot_cw)] for X_row in self.corners]
             
             elif direction == 'ccw':
                 # Rotation Matrix for 90deg CCW
@@ -106,10 +109,13 @@ class Piece:
 
                 # Rotated CCW shape matrix
                 rot_shape = [[sum(a*b for a,b in zip(X_row,Y_col)) for Y_col in zip(*rot)] for X_row in self.shape]
+                # Rotated CCW shape matrix for corners
+                rot_shape_corners = [[sum(a*b for a,b in zip(X_row,Y_col)) for Y_col in zip(*rot)] for X_row in self.corners]
         else:
             rot_shape = self.shape
+            rot_shape_corners = self.corners
 
-        return rot_shape
+        return rot_shape, rot_shape_corners
 
     def flip_shape(self):
         # Takes shape matrix and flips it
@@ -120,32 +126,10 @@ class Piece:
 
             # flipped shape matrix
             flip_shape = [[sum(a*b for a,b in zip(X_row,Y_col)) for Y_col in zip(*flip_matrix)] for X_row in self.shape]
+            # flipped shape matrix for corners
+            flip_shape_corners = [[sum(a*b for a,b in zip(X_row,Y_col)) for Y_col in zip(*flip_matrix)] for X_row in self.corners]
         else:  
             flip_shape = self.shape
+            flip_shape_corners = self.corners
 
-        return flip_shape
-    
-    def collision_box(self):
-        # Get mouse pos
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-        # Determine collision box based on given shape
-        collision_list_x = []
-        collision_list_y = []
-        
-        for i in range(len(self.shape)):
-            collision_list_x.append(self.shape[i][0])
-            collision_list_y.append(self.shape[i][1])
-        
-        collision_top_left_x = self.x + (min(collision_list_x) * BLOCK_SIZE)
-        collision_top_left_y = self.y - abs((min(collision_list_y) * BLOCK_SIZE))
-        collision_box_width = max(collision_list_x) - min(collision_list_x) + 1
-        collision_box_height = max(collision_list_y) - min(collision_list_y) + 1
-
-        # Outputs collision box with format = (top_left_x, top_left_y, width, height)
-        collision_box = pygame.Rect(collision_top_left_x, collision_top_left_y, collision_box_width * BLOCK_SIZE, collision_box_height * BLOCK_SIZE)
-
-        # Check to see if box was clicked or not
-        if collision_box.collidepoint(mouse_x, mouse_y):
-            return True
-        else:
-            return False
+        return flip_shape, flip_shape_corners

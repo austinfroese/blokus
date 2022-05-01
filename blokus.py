@@ -4,7 +4,6 @@ import math
 import random
 from blokus.constants import *
 from blokus.piece import *
-from blokus.game import *
 from blokus.board import *
 
 FPS = 60
@@ -48,75 +47,6 @@ def is_valid():
 def locked_positions():
     pass
 
-def drag_drop(surface, grid, shape, offset_x, offset_y, dragging):
-    deciding = True
-    Start_flag = True
-
-    # Allow the piece to be moved, flipped and rotated until position is locked
-    while deciding:
-        while dragging:
-            if Start_flag == True:
-                mouse_x, mouse_y = pygame.mouse.get_pos()
-                origin_x = mouse_x + offset_x
-                origin_y = mouse_y + offset_y
-                Start_flag = False
-
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    dragging = False
-                    deciding = False
-                    pygame.display.quit()
-
-                if event.type == pygame.MOUSEBUTTONUP:
-                    if event.button == 1:
-                        dragging = False
-                
-                if event.type == pygame.MOUSEMOTION:
-                    if dragging:
-                        mouse_x, mouse_y = event.pos
-                        origin_x = mouse_x + offset_x
-                        origin_y = mouse_y + offset_y
-                        shape_origin = pygame.Rect(origin_x, origin_y, BLOCK_SIZE, BLOCK_SIZE)                 
-            
-            if dragging == True:
-                Board.draw_window(surface, grid)
-
-            #draw_shape(screen, origin_x, origin_y, shape, (255,0,0), BLOCK_SIZE)
-
-            pygame.display.flip()
-
-         #   clock.tick()
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                deciding = False
-                pygame.display.quit()
-            
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if shape_origin.collidepoint(event.pos):
-                        dragging = True
-                        mouse_x, mouse_y = event.pos
-                        offset_x = shape_origin.x - mouse_x
-                        offset_y = shape_origin.y - mouse_y
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP or pygame.K_DOWN:
-                    if event.key == pygame.K_UP:
-                        shape = Piece.rot_shape(shape, "cw")
-                    elif event.key == pygame.K_DOWN:
-                        shape = Piece.rot_shape(shape, "ccw")
-                if event.key == pygame.K_f:
-                    shape = Piece.flip_shape(shape)
-                if event.key == pygame.K_RETURN:
-                    deciding = False
-
-        if deciding == True:
-            Board.draw_window(surface, grid)
-
-        # surface, origin_x, origin_y, shape_matrix, color, block_size
-        #draw_shape(screen, origin_x, origin_y, shape, (255,0,0), BLOCK_SIZE)
-
-        pygame.display.update()
-
 # Main loop
 
 def main():
@@ -126,16 +56,11 @@ def main():
     run = True
     dragging = False
     clock = pygame.time.Clock()
-    game = Game(screen, starting_player)
-    board = Board()
+    board = Board(screen, starting_player, None)
 
     while run:
         clock.tick(FPS)
         grid = Board.game_grid(board_positions)
-        
-        if game.winner() != None:
-            print(game.winner())
-            run = False
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -144,27 +69,33 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
                 if dragging == False:
-                    if mouse_pos[0] >= 0 and mouse_pos[0] < top_left_x:
+                    if mouse_pos[0] >= 0 and mouse_pos[0] < top_left_x and board.turn == 1:
                         selected_piece = player_board_click(mouse_pos, 1)
-                        #dragging = True
-                    if mouse_pos[0] >= (player2_x):
+                        dragging = True
+                    if mouse_pos[0] >= (player2_x) and board.turn == 2:
                         selected_piece = player_board_click(mouse_pos, 2)
-                        #dragging = True
+                        dragging = True
+                    if dragging == True:
+                        board.turn = selected_piece[1]
+                        if board.turn == 1:
+                            color = COLOR1
+                        if board.turn == 2:
+                            color = COLOR2
+                        board.selected_piece = Piece(mouse_pos[0], mouse_pos[1], player1_reserves[str(selected_piece[0])], piece_corners[str(selected_piece[0])], color, BLOCK_SIZE)
             
             if dragging:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_UP or pygame.K_DOWN:
                         if event.key == pygame.K_UP:
-
-                            shape = Piece.rot_shape(shape, "cw")
+                            board.selected_piece = Piece.rot_shape(board.selected_piece, "cw")
                         elif event.key == pygame.K_DOWN:
-                            shape = Piece.rot_shape(shape, "ccw")
+                            board.selected_piece = Piece.rot_shape(board.selected_piece, "ccw")
                     if event.key == pygame.K_f:
-                        shape = Piece.flip_shape(shape)
+                        board.selected_piece = Piece.flip_shape(board.selected_piece)
                     if event.key == pygame.K_RETURN:
                         dragging = False
         
-        game.update()
+        board.update()
     
     pygame.quit()
 
