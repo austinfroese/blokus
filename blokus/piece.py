@@ -115,7 +115,8 @@ class Piece:
             rot_shape = self.shape
             rot_shape_corners = self.corners
 
-        return rot_shape, rot_shape_corners
+        self.shape = rot_shape
+        self.corners = rot_shape_corners
 
     def flip_shape(self):
         # Takes shape matrix and flips it
@@ -132,4 +133,5 @@ class Piece:
             flip_shape = self.shape
             flip_shape_corners = self.corners
 
-        return flip_shape, flip_shape_corners
+        self.shape = flip_shape
+        self.corners = flip_shape_corners
