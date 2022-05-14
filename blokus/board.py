@@ -16,8 +16,8 @@ class Board:
         self.selected_piece = selected_piece
         self.dragging = dragging      
     
-    def update(self):
-        self.draw_window()
+    def update(self, grid):
+        self.draw_window(grid)
         if self.dragging == True:
             self.draw_dragged_piece()
         pygame.display.update()
@@ -68,7 +68,7 @@ class Board:
     def draw_dragged_piece(self):
         self.selected_piece.draw_shape(self.surface)
 
-    def draw_window(self):
+    def draw_window(self, grid):
         self.surface.fill((0, 0, 0))
 
         font = pygame.font.SysFont('comicsans', 30)
@@ -81,9 +81,10 @@ class Board:
         self.surface.blit(label3, (top_left_x + (BOARD_WIDTH / 2) - (label3.get_width() / 2), 30))
 
         self.player_reserves(player_list)
+
+        for i in range(len(grid)):
+            for j in range(len(grid[i])):
+                pygame.draw.rect(self.surface, grid[i][j], (top_left_x + j*BLOCK_SIZE, top_left_y + i*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE), 0)
+
         self.draw_grid(14, 14)
         pygame.draw.rect(self.surface, (255, 0, 0), (top_left_x, top_left_y, BOARD_WIDTH, BOARD_HEIGHT), 3)
-
-        #for i in range(len(grid)):
-        #    for j in range(len(grid[i])):
-        #        pygame.draw.rect(surface, grid[i][j], (top_left_x + j*BLOCK_SIZE, top_left_y + i*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE), 0)

@@ -40,7 +40,7 @@ def player_board_click(pos, player):
                 else:
                     n += 1
 
-def drop_piece(pos, grid):
+def drop_piece(pos, grid, piece):
     board_click_grid = [[[] for x in range(14)] for x in range(14)]
     # counter for figuring out which spot is clicked
     n = 0
@@ -48,41 +48,57 @@ def drop_piece(pos, grid):
     for i in range(len(board_click_grid)):
         for j in range(len(board_click_grid[i])):
             temp_rect = pygame.Rect(top_left_x + i * BLOCK_SIZE, top_left_y + j * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
-            if temp_rect.collidepoint(pos) and is_valid(i, j, grid):
+            if temp_rect.collidepoint(pos) and is_valid(i, j, grid, piece):
                 return (i,j) # True if piece can go there
             else:
                 n += 1
     
     return None
 
-def is_valid(i, j, grid):
+def is_valid(i, j, grid, piece):
     # 1. Starting pos   
     if len(player1_reserves) == 21 or len(player2_reserves) == 21:
-        if (i == 4 and j == 4 and grid[i][j] == BLACK) or (i == 9 and j == 9 and grid[i][j] == BLACK):
-            return True
-    # 2. Corners  
+        for k in range(len(piece.shape)):
+            if piece.shape[k][0] + i == 4 and piece.shape[k][1] + j == 4 and grid[i][j] == BLACK:
+                return True
+            elif piece.shape[k][0] + i == 9 and piece.shape[k][1] + j == 9 and grid[i][j] == BLACK:
+                return True
+    # 2. Corners
+    
     # 3. Overlap     
     # 4. Off the board
     return False
 
-def locked_positions():
-    pass
+def end_turn(x, y, grid, board, board_positions, shape_id):
+    piece = board.selected_piece
+    for i in range(len(piece.shape)):
+        board_x = x + piece.shape[i][0]
+        board_y = y + piece.shape[i][1]
+        board_positions.update({(board_x, board_y) : piece.color})
+    
+    if board.turn == 1:
+        player1_reserves.pop(shape_id)
+        board.turn = 2
+    elif board.turn == 2:
+        player2_reserves.pop(shape_id)
+        board.turn = 1
 
 # Main loop
 
 def main():
-    board_positions = {} # (x,y): (255,0,0)
-    grid = Board.game_grid(board_positions)
-
     run = True
     dragging = False
     dropped = False
-    clock = pygame.time.Clock()
+
+    board_positions = {} # (x,y): (255,0,0)
     board = Board(screen, starting_player, None, dragging)
+    grid = board.game_grid(board_positions)
+
+    clock = pygame.time.Clock()
 
     while run:
         clock.tick(FPS)
-        grid = Board.game_grid(board_positions)
+        grid = board.game_grid(board_positions)
 
         for event in pygame.event.get():
             mouse_pos = pygame.mouse.get_pos()
@@ -92,7 +108,7 @@ def main():
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if dragging == True:
-                    dropped_pos = drop_piece(mouse_pos, grid)
+                    dropped_pos = drop_piece(mouse_pos, grid, board.selected_piece)
                     if dropped_pos is not None:
                         dropped = True
                         board.selected_piece.x = top_left_x + (dropped_pos[0] * BLOCK_SIZE)
@@ -100,17 +116,17 @@ def main():
 
                 if dragging == False:
                     if mouse_pos[0] >= 0 and mouse_pos[0] < top_left_x and board.turn == 1:
-                        selected_piece = player_board_click(mouse_pos, 1)
+                        selected_piece_id = player_board_click(mouse_pos, 1)
                         dragging = True
                     if mouse_pos[0] >= (player2_x) and board.turn == 2:
-                        selected_piece = player_board_click(mouse_pos, 2)
+                        selected_piece_id = player_board_click(mouse_pos, 2)
                         dragging = True
                     if dragging == True:
                         if board.turn == 1:
                             color = COLOR1
                         if board.turn == 2:
                             color = COLOR2
-                        board.selected_piece = Piece(mouse_pos[0], mouse_pos[1], player1_reserves[str(selected_piece)], piece_corners[str(selected_piece)], color, BLOCK_SIZE)
+                        board.selected_piece = Piece(mouse_pos[0], mouse_pos[1], player1_reserves[str(selected_piece_id)], piece_corners[str(selected_piece_id)], color, BLOCK_SIZE)
                         board.dragging = True
             
             if dragging:
@@ -126,13 +142,14 @@ def main():
                             board.selected_piece.rot_shape("ccw")
                     if event.key == pygame.K_f:
                         board.selected_piece.flip_shape()
-                    if event.key == pygame.K_RETURN and dropped:
+                    if event.key == pygame.K_RETURN and dropped and is_valid(dropped_pos[0], dropped_pos[1], grid, board.selected_piece):
+                        end_turn(dropped_pos[0], dropped_pos[1], grid, board, board_positions, selected_piece_id)
                         dragging = False
                         dropped = False
                         board.dragging = False
-
+                        dropped_pos = None
         
-        board.update()
+        board.update(grid)
     
     pygame.quit()
 

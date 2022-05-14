@@ -73,7 +73,7 @@ piece_corners_list = [i1_corners, i2_corners, i3_corners, i4_corners, i5_corners
 
 piece_corners = dict(zip(player_str, piece_corners_list))
 player1_reserves = dict(zip(player_str, player_list))
-player2_reserves = player1_reserves
+player2_reserves = dict(zip(player_str, player_list))
 
 class Piece:
     def __init__(self, x, y, shape, corners, color, block):
